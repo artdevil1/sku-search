@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ค้นหาสินค้าด้วย SKU</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input { padding: 6px; font-size: 16px; }
+    button { padding: 6px 12px; font-size: 16px; }
+    img { max-width: 300px; margin-top: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+<h2>ค้นหาสินค้าด้วย SKU</h2>
+
+<input id="sku" placeholder="พิมพ์ SKU">
+<button onclick="search()">ค้นหา</button>
+
+<div id="result" style="margin-top:20px;"></div>
+
+<script>
+let products = [];
+
+fetch("products.json")
+  .then(res => res.json())
+  .then(data => products = data);
+
+function search() {
+  const sku = document.getElementById("sku").value.trim();
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = "กำลังค้นหา...";
+
+  const item = products.find(p => String(p.sku).trim() === sku);
+
+  if (!item) {
+    resultDiv.innerHTML = "<p style='color:red'>ไม่พบสินค้า</p>";
+    return;
+  }
+
+  resultDiv.innerHTML = `
+    <h3>${item.name}</h3>
+    <img src="${item.image}" alt="รูปสินค้า">
+    <p><strong>SKU:</strong> ${item.sku}</p>
+  `;
+}
+</script>
+
+</body>
+</html>
