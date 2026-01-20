@@ -20,31 +20,40 @@
 <div id="result" style="margin-top:20px;"></div>
 
 <script>
-let products = [];
-
-fetch("products.json")
-  .then(res => res.json())
-  .then(data => products = data);
-
-function search() {
+async function searchSKU() {
   const sku = document.getElementById("sku").value.trim();
+  if (!sku) return;
+
   const resultDiv = document.getElementById("result");
   resultDiv.innerHTML = "กำลังค้นหา...";
 
-  const item = products.find(p => String(p.sku).trim() === sku);
+  try {
+    const res = await fetch(
+      "https://script.googleusercontent.com/macros/echo?user_content_key=YOUR_KEY&sku=" + sku
+    );
+    const data = await res.json();
 
-  if (!item) {
-    resultDiv.innerHTML = "<p style='color:red'>ไม่พบสินค้า</p>";
-    return;
+    if (data.error) {
+      resultDiv.innerHTML = `<p style="color:red">${data.error}</p>`;
+      return;
+    }
+
+    const imageUrl = `images/${data.sku}.jpg`;
+
+    resultDiv.innerHTML = `
+      <h2>${data.name}</h2>
+      <img src="${imageUrl}" 
+           alt="รูปสินค้า" 
+           style="max-width:300px;border:1px solid #ccc"
+           onerror="this.style.display='none'">
+      <p><strong>SKU:</strong> ${data.sku}</p>
+    `;
+  } catch (e) {
+    resultDiv.innerHTML = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
   }
-
-  resultDiv.innerHTML = `
-    <h3>${item.name}</h3>
-    <img src="${item.image}" alt="รูปสินค้า">
-    <p><strong>SKU:</strong> ${item.sku}</p>
-  `;
 }
 </script>
+
 
 </body>
 </html>
